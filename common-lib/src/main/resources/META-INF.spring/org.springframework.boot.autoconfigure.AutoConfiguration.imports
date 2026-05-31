@@ -1,2 +1,2 @@
-com.karandev.distributed_design_forge.common_lib.error.SharedExceptionAutoConfiguration
 com.karandev.distributed_design_forge.common_lib.security.SharedSecurityAutoConfiguration
+com.karandev.distributed_design_forge.common_lib.error.SharedExceptionAutoConfiguration

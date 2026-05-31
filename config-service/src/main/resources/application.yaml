@@ -1,3 +1,12 @@
 spring:
   application:
     name: config-service
+
+  cloud:
+    config.server.git:
+      uri: https://github.com/KaranLalwani-dev/designforge-config-server
+      username: KaranLalwani-dev
+      password: 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
+      default-label: master
+
+server.port: 8888
