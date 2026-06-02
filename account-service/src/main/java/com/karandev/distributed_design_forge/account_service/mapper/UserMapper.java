@@ -5,14 +5,17 @@ import com.karandev.distributed_design_forge.account_service.dto.auth.SignupRequ
 import com.karandev.distributed_design_forge.account_service.dto.auth.UserProfileResponse;
 import com.karandev.distributed_design_forge.account_service.entity.User;
 import com.karandev.distributed_design_forge.common_lib.dto.UserDto;
+import com.karandev.distributed_design_forge.common_lib.security.JwtUserPrincipal;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
     User toEntity(SignupRequest signupRequest);
 
-    UserProfileResponse toUserProfileResponse(User user);
+    @Mapping(source = "userId", target = "id")
+    UserProfileResponse toUserProfileResponse(JwtUserPrincipal user);
 
     UserDto toUserDto(User user);
 
