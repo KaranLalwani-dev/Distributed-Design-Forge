@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/projects/{projectId}/members")
 @RequiredArgsConstructor
+@RequestMapping("/projects/{projectId}/members")
 public class ProjectMemberController {
 
     private final ProjectMemberService projectMemberService;

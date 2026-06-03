@@ -1,6 +1,6 @@
 package com.karandev.distributed_design_forge.workspace_service.mapper;
 
-import com.karandev.distributed_design_forge.workspace_service.dto.project.FileNode;
+import com.karandev.distributed_design_forge.common_lib.dto.FileNode;
 import com.karandev.distributed_design_forge.workspace_service.entity.ProjectFile;
 import org.mapstruct.Mapper;
 

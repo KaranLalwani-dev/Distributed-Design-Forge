@@ -1,5 +1,6 @@
 package com.karandev.distributed_design_forge.workspace_service.controller;
 
+import com.karandev.distributed_design_forge.common_lib.dto.FileTreeDto;
 import com.karandev.distributed_design_forge.workspace_service.dto.project.FileContentResponse;
 import com.karandev.distributed_design_forge.workspace_service.dto.project.FileTreeResponse;
 import com.karandev.distributed_design_forge.workspace_service.service.ProjectFileService;
@@ -11,18 +12,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/projects/{projectId}/files")
+@RequestMapping("/projects/{projectId}/files")
 public class FileController {
 
     private final ProjectFileService projectFileService;
 
     @GetMapping
-    public ResponseEntity<FileTreeResponse> getFileTree(@PathVariable Long projectId) {
+    public ResponseEntity<FileTreeDto> getFileTree(@PathVariable Long projectId) {
         return ResponseEntity.ok(projectFileService.getFileTree(projectId));
     }
 
     @GetMapping("/content")
-    public ResponseEntity<FileContentResponse> getFile(
+    public ResponseEntity<String> getFile(
             @PathVariable Long projectId,
             @RequestParam String path) {
         return ResponseEntity.ok(projectFileService.getFileContent(projectId, path));

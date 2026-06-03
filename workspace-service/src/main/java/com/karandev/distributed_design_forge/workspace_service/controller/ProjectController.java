@@ -1,8 +1,10 @@
 package com.karandev.distributed_design_forge.workspace_service.controller;
 
+import com.karandev.distributed_design_forge.workspace_service.dto.project.DeployResponse;
 import com.karandev.distributed_design_forge.workspace_service.dto.project.ProjectRequest;
 import com.karandev.distributed_design_forge.workspace_service.dto.project.ProjectResponse;
 import com.karandev.distributed_design_forge.workspace_service.dto.project.ProjectSummaryResponse;
+import com.karandev.distributed_design_forge.workspace_service.service.DeploymentService;
 import com.karandev.distributed_design_forge.workspace_service.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -15,12 +17,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/projects")
 @RequiredArgsConstructor
+@RequestMapping("/projects")
 public class ProjectController {
 
     private final ProjectService projectService;
-//    private final DeploymentService deploymentService;
+    private final DeploymentService deploymentService;
 
     @GetMapping
     public ResponseEntity<List<ProjectSummaryResponse>> getMyProjects() {
@@ -48,9 +50,9 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/{id}/deploy")
-//    public ResponseEntity<DeployResponse> deployProject(@PathVariable Long id) {
-//        return ResponseEntity.ok(deploymentService.deploy(id));
-//    } TODO: DeploymentService
+    @PostMapping("/{id}/deploy")
+    public ResponseEntity<DeployResponse> deployProject(@PathVariable Long id) {
+        return ResponseEntity.ok(deploymentService.deploy(id));
+    }
 
 }
