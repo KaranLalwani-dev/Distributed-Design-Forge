@@ -8,8 +8,8 @@ spring:
         git:
           uri: https://github.com/KaranLalwani-dev/designforge-config-server.git
           username: KaranLalwani-dev
-          password: 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
-          default-label: master
+          password: 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
+          default-label: main
 
 server:
   port: 8888
