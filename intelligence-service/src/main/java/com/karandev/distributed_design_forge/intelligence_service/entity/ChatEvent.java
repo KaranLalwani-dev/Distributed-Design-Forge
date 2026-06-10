@@ -1,5 +1,6 @@
 package com.karandev.distributed_design_forge.intelligence_service.entity;
 
+import com.karandev.distributed_design_forge.common_lib.enums.ChatEventStatus;
 import com.karandev.distributed_design_forge.common_lib.enums.ChatEventType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,5 +38,11 @@ public class ChatEvent {
 
     @Column(columnDefinition = "text")
     String metadata;
+
+    String sagaId;
+
+    @Enumerated(EnumType.STRING)
+//    @Column(nullable = false)
+    ChatEventStatus status;
 
 }

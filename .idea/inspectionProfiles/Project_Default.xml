@@ -12,6 +12,11 @@
           <option value="account-service" />
           <option value="account-service" />
           <option value="account-service" />
+          <option value="api-gateway" />
+          <option value="intelligence-service" />
+          <option value="intelligence-service" />
+          <option value="intelligence-service" />
+          <option value="intelligence-service" />
         </list>
       </option>
       <option name="ignoredPackages">
@@ -23,10 +28,20 @@
           <option value="commons-configuration:commons-configuration:1.10" />
           <option value="commons-lang:commons-lang:2.6" />
           <option value="commons-fileupload:commons-fileupload:1.5" />
+          <option value="commons-fileupload:commons-fileupload:1.5" />
+          <option value="org.bouncycastle:bcprov-jdk18on:1.81" />
+          <option value="org.apache.httpcomponents:httpclient:4.5.3" />
+          <option value="commons-configuration:commons-configuration:1.10" />
+          <option value="commons-lang:commons-lang:2.6" />
         </list>
       </option>
       <option name="ignoredReasons">
         <list>
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
           <option value="Not exploitable" />
           <option value="Not exploitable" />
           <option value="Not exploitable" />
