@@ -1,8 +1,9 @@
 package com.karandev.distributed_design_forge.workspace_service.consumer;
 
-
 import com.karandev.distributed_design_forge.common_lib.event.FileStoreRequestEvent;
 import com.karandev.distributed_design_forge.common_lib.event.FileStoreResponseEvent;
+import com.karandev.distributed_design_forge.workspace_service.entity.ProcessedEvent;
+import com.karandev.distributed_design_forge.workspace_service.repository.ProcessedEventRepository;
 import com.karandev.distributed_design_forge.workspace_service.service.ProjectFileService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
