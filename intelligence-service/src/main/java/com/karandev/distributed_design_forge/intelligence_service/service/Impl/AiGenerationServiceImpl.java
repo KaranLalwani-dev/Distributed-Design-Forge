@@ -102,8 +102,11 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                 })
                 .doOnError(error -> log.error("Error during streaming for projectId: {}", projectId))
                 .map(response -> {
-                    String text = response.getResult().getOutput().getText();
-                    return new StreamResponse(text != null ? text : "");
+                    if (response.getResults() != null && !response.getResults().isEmpty()) {
+                        String text = response.getResult().getOutput().getText();
+                        return new StreamResponse(text != null ? text : "");
+                    }
+                    return new StreamResponse("");
                 });
     }
 
