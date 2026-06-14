@@ -1,0 +1,14 @@
+# Environment files
+.env
+*.env
+.env.*
+
+# IntelliJ
+.idea/
+
+# Maven
+target/
+*.class
+
+# OS
+.DS_Store
