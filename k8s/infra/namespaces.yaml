@@ -1,0 +1,28 @@
+# k8s/infra/namespace.yaml
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: design-forge-core
+
+---
+# to create a separate ns for previews
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: design-forge-previews
+
+---
+# configmap for shared config values across services
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: design-forge-shared-config
+  namespace: design-forge-core
+data:
+  PREVIEW_DOMAIN: "previews.designforge.in"
+  PREVIEW_NAMESPACE: "design-forge-previews"
+  PROXY_PORT: "80"
+

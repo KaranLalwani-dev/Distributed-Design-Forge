@@ -11,7 +11,7 @@
 	<groupId>com.karandev.distributed-design-forge</groupId>
 	<artifactId>api-gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
+	<name>api-gateway</name>
 	<description/>
 	<url/>
 	<licenses>
@@ -127,7 +127,7 @@
 				<version>3.4.4</version>
 				<configuration>
 					<to>
-						<image>docker.io/karanlalwani/design-forge${project.name}:${project.version}</image>
+						<image>docker.io/karanlalwani/design-forge-${project.name}:${project.version}</image>
 						<tags>
 							<tag>latest</tag>
 						</tags>
