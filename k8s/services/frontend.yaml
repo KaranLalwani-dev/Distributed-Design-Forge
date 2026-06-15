@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: design-forge-frontend
+  namespace: design-forge-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: design-forge-frontend
+  template:
+    metadata:
+      labels:
+        app: design-forge-frontend
+    spec:
+      containers:
+        - name: design-forge-frontend
+          image: karanlalwani/design-forge-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: design-forge-frontend
+  namespace: design-forge-core
+spec:
+  type: ClusterIP
+  selector:
+    app: design-forge-frontend
+  ports:
+    - port: 80
+      targetPort: 80
