@@ -1,0 +1,61 @@
+name: Deploy Workspace Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'workspace-service/**'
+
+env:
+  SERVICE_NAME: workspace-service
+  IMAGE_NAME: karanlalwani/design-forge-workspace-service
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build, Push, and Deploy to GKE
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and Push Docker Image with Jib
+        working-directory: ./${{ env.SERVICE_NAME }}
+        run: |
+          ./mvnw compile jib:build \
+            -Djib.to.image=docker.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            -Djib.to.tags=latest \
+            -Djib.to.auth.username=${{ secrets.DOCKERHUB_USERNAME }} \
+            -Djib.to.auth.password=${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+
+      - name: Get GKE Credentials
+        uses: google-github-actions/get-gke-credentials@v3
+        with:
+          cluster_name: ${{ secrets.GCP_CLUSTER }}
+          location: ${{ secrets.GCP_ZONE }}
+
+      - name: Deploy to GKE
+        run: |
+          kubectl set image deployment/${{ env.SERVICE_NAME }} \
+          ${{ env.SERVICE_NAME }}=${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          -n design-forge-core
+          
+          kubectl rollout status deployment/${{ env.SERVICE_NAME }} -n design-forge-core
