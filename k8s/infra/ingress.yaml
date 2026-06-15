@@ -1,0 +1,59 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: design-forge-main-ingress
+  namespace: design-forge-core
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: "nginx"
+  rules:
+    # 1. Main Website Route (The Frontend!)
+    - host: "designforge.website"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: design-forge-frontend
+                port:
+                  number: 80
+
+    - host: "www.designforge.website"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: design-forge-frontend
+                port:
+                  number: 80
+
+    # 2. Previews Route
+    - host: "*.previews.designforge.website"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: design-forge-proxy
+                port:
+                  number: 80
+
+    # 3. API Gateway Route
+    - host: "api.designforge.website"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 80
+
+
