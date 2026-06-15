@@ -31,6 +31,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Build and Install Common Lib
+        working-directory: ./common-lib
+        run: ./mvnw clean install -DskipTests
+
       - name: Build and Push Docker Image with Jib
         working-directory: ./${{ env.SERVICE_NAME }}
         run: |
