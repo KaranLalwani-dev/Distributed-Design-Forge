@@ -1,14 +1,72 @@
+# =====================
 # Environment files
+# =====================
 .env
-*.env
 .env.*
+!.env.example
 
-# IntelliJ
-.idea/
-
-# Maven
+# =====================
+# Java / Spring Boot / Maven / Gradle
+# =====================
 target/
+build/
+out/
 *.class
+*.jar
+*.war
+*.ear
 
-# OS
+# Spring Boot logs / temp
+logs/
+*.log
+spring.log
+
+# Maven wrapper cache
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# =====================
+# Node.js / npm / yarn / pnpm
+# =====================
+node_modules/
+**/node_modules/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+dist/
+coverage/
+.next/
+.nuxt/
+.parcel-cache/
+.vite/
+*.tsbuildinfo
+
+# =====================
+# IntelliJ / IDE
+# =====================
+.idea/
+*.iml
+*.ipr
+*.iws
+*.log
+
+# VS Code
+.vscode/
+
+# =====================
+# OS files
+# =====================
 .DS_Store
+Thumbs.db
+
+# =====================
+# Misc
+# =====================
+*.tmp
+*.swp
