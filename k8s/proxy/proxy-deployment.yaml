@@ -1,0 +1,50 @@
+# k8s/proxy/proxy-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: design-forge-proxy
+  namespace: design-forge-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: design-forge-proxy
+  template:
+    metadata:
+      labels:
+        app: design-forge-proxy
+    spec:
+      containers:
+        - name: design-forge-proxy
+          image: karanlalwani/design-forge-proxy:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "250m"
+              memory: "512Mi"
+          envFrom:
+            - configMapRef:
+                name: design-forge-shared-config
+          env:
+            - name: REDIS_URL
+              value: "redis://redis-0.redis.design-forge-core.svc.cluster.local:6379"
+            - name: PORT
+              value: "80"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: design-forge-proxy
+  namespace: design-forge-core
+spec:
+  selector:
+    app: design-forge-proxy
+  ports:
+    - port: 80
+      targetPort: 80
