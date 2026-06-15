@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: design-forge-frontend
-          image: karanlalwani/design-forge-frontend:latest
+          image: karanlalwani/design-forge-frontend@sha256:4672c1c490cf4dd838709002226303fa9b9aae477cec5beaad2454a7c19d42d9
           imagePullPolicy: Always
           ports:
             - containerPort: 80

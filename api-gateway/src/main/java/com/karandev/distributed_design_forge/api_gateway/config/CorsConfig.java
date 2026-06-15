@@ -16,8 +16,8 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowedOrigins(Arrays.asList(
-                "http://designforge.website",
-                "http://www.designforge.website",
+                "https://designforge.website",
+                "https://www.designforge.website",
                 "http://localhost:5173"
         ));
         corsConfig.setMaxAge(3600L);
