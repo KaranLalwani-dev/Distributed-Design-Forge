@@ -4,8 +4,11 @@ package com.karandev.distributed_design_forge.account_service.service.impl;
 import com.karandev.distributed_design_forge.account_service.dto.auth.AuthResponse;
 import com.karandev.distributed_design_forge.account_service.dto.auth.LoginRequest;
 import com.karandev.distributed_design_forge.account_service.dto.auth.SignupRequest;
+import com.karandev.distributed_design_forge.account_service.entity.Subscription;
 import com.karandev.distributed_design_forge.account_service.entity.User;
 import com.karandev.distributed_design_forge.account_service.mapper.UserMapper;
+import com.karandev.distributed_design_forge.account_service.repository.PlanRepository;
+import com.karandev.distributed_design_forge.account_service.repository.SubscriptionRepository;
 import com.karandev.distributed_design_forge.account_service.repository.UserRepository;
 import com.karandev.distributed_design_forge.account_service.service.AuthService;
 import com.karandev.distributed_design_forge.common_lib.error.BadRequestException;
@@ -32,6 +35,8 @@ public class AuthServiceImpl implements AuthService {
     PasswordEncoder passwordEncoder;
     AuthUtil authUtil;
     AuthenticationManager authenticationManager;
+    PlanRepository planRepository;
+    SubscriptionRepository subscriptionRepository;
 
     @Override
     public AuthResponse signup(SignupRequest request) {
@@ -42,6 +47,10 @@ public class AuthServiceImpl implements AuthService {
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.password()));
         user = userRepository.save(user);
+        Subscription subscription = Subscription.builder().user(user)
+                .plan(planRepository.findById(1L).get())
+                .build();
+        subscriptionRepository.save(subscription);
 
         JwtUserPrincipal jwtUserPrincipal = new JwtUserPrincipal(user.getId(), user.getName(),
                 user.getUsername(), null,  new ArrayList<>());
