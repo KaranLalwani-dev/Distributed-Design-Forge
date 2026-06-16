@@ -15,6 +15,9 @@ spec:
         - www.designforge.website
         - api.designforge.website
       secretName: design-forge-main-tls
+    - hosts:
+        - "*.previews.designforge.website"
+      secretName: design-forge-previews-tls
   rules:
     - host: "designforge.website"
       http:

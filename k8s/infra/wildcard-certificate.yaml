@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: previews-wildcard-cert
+  namespace: design-forge-core
+spec:
+  secretName: design-forge-previews-tls
+  issuerRef:
+    name: letsencrypt-dns
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.previews.designforge.website"
