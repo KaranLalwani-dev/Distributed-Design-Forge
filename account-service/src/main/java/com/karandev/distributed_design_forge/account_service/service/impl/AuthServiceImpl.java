@@ -11,6 +11,7 @@ import com.karandev.distributed_design_forge.account_service.repository.PlanRepo
 import com.karandev.distributed_design_forge.account_service.repository.SubscriptionRepository;
 import com.karandev.distributed_design_forge.account_service.repository.UserRepository;
 import com.karandev.distributed_design_forge.account_service.service.AuthService;
+import com.karandev.distributed_design_forge.common_lib.enums.SubscriptionStatus;
 import com.karandev.distributed_design_forge.common_lib.error.BadRequestException;
 import com.karandev.distributed_design_forge.common_lib.security.AuthUtil;
 import com.karandev.distributed_design_forge.common_lib.security.JwtUserPrincipal;
@@ -49,6 +50,8 @@ public class AuthServiceImpl implements AuthService {
         user = userRepository.save(user);
         Subscription subscription = Subscription.builder().user(user)
                 .plan(planRepository.findById(1L).get())
+                .cancelAtPeriodEnd(false)
+                .status(SubscriptionStatus.ACTIVE)
                 .build();
         subscriptionRepository.save(subscription);
 
