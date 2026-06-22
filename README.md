@@ -42,47 +42,6 @@ At runtime, the system is composed of these major paths:
 | Preview execution path | `workspace-service` claims a runner pod, mirrors project files from MinIO into `/app`, starts Vite on port `5173`, and registers preview routing in Redis. |
 | Live preview path | NGINX routes wildcard preview hosts to `design-forge-proxy`, which resolves the target runner pod through Redis and forwards HTTP and WebSocket traffic to Vite. |
 
-```mermaid
-flowchart LR
-  Browser["React frontend browser"]
-  Ingress["NGINX Ingress\n design-forge-main-ingress"]
-  Gateway["api-gateway\nSpring Cloud Gateway\n:8080 -> Service :80"]
-  Account["account-service\n/account :9050"]
-  Workspace["workspace-service\n/workspace :9020"]
-  Intelligence["intelligence-service\n/intelligence :9030"]
-  Config["config-service\nSpring Cloud Config\n:8888"]
-  Pg["pgvector\npgvector/pgvector:pg16\n:5432"]
-  Kafka["kafka\nconfluentinc/confluent-local:7.5.0\n:9092"]
-  MinIO["minio\nminio/minio:latest\n:9000"]
-  Redis["redis\nredis:7-alpine\n:6379"]
-  Proxy["design-forge-proxy\nNode http-proxy\n:80"]
-  Runner["runner-pool pod\nrunner :5173 + syncer sidecar"]
-
-  Browser --> Ingress
-  Ingress --> Gateway
-  Gateway --> Account
-  Gateway --> Workspace
-  Gateway --> Intelligence
-  Account --> Pg
-  Workspace --> Pg
-  Intelligence --> Pg
-  Account --> Config
-  Workspace --> Config
-  Intelligence --> Config
-  Gateway --> Config
-  Intelligence --> Kafka
-  Kafka --> Workspace
-  Workspace --> Kafka
-  Kafka --> Intelligence
-  Workspace --> MinIO
-  Workspace --> Redis
-  Workspace --> Runner
-  MinIO --> Runner
-  Browser --> Ingress
-  Ingress --> Proxy
-  Proxy --> Redis
-  Proxy --> Runner
-```
 <img width="7022" height="4200" alt="System Architecture" src="https://github.com/user-attachments/assets/5dd5bbdd-74d7-4f1f-becd-6b2b8cc99620" />
 
 <img width="1484" height="950" alt="Code Generation Architecture" src="https://github.com/user-attachments/assets/5981e42c-dc91-4852-9b6c-0ddf344d9265" />
