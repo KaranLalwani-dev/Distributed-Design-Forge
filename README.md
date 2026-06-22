@@ -83,6 +83,13 @@ flowchart LR
   Proxy --> Redis
   Proxy --> Runner
 ```
+<img width="7022" height="4200" alt="System Architecture" src="https://github.com/user-attachments/assets/5dd5bbdd-74d7-4f1f-becd-6b2b8cc99620" />
+
+<img width="1484" height="950" alt="Code Generation Architecture" src="https://github.com/user-attachments/assets/5981e42c-dc91-4852-9b6c-0ddf344d9265" />
+
+<img width="2739" height="1679" alt="Code Execution Architecture" src="https://github.com/user-attachments/assets/24d1a12d-b304-4391-8198-20cb30dd4fff" />
+
+<img width="2091" height="580" alt="Distributed Transaction" src="https://github.com/user-attachments/assets/2ed2a03f-5423-401d-b2ae-7525029cce21" />
 
 ## Namespace Architecture
 
