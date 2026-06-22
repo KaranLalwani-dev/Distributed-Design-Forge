@@ -759,6 +759,8 @@ No service should directly query another service's database. Cross-service reads
 | `Plan` | `plan` | `id`, `name`, `stripePriceId`, `maxProjects`, `maxTokensPerDay`, `maxPreviews`, `unlimitedAi`, `active` |
 | `Subscription` | `subscription` | `id`, `user`, `plan`, `status`, `stripeSubscriptionId`, `currentPeriodStart`, `currentPeriodEnd`, `cancelAtPeriodEnd`, `createdAt`, `updatedAt` |
 
+<img width="892" height="956" alt="account_db" src="https://github.com/user-attachments/assets/0d478e36-0e6b-4477-9beb-19b0b3b53af7" />
+
 ### Workspace Service Data
 
 | Entity | Table | Important fields |
@@ -778,6 +780,8 @@ No service should directly query another service's database. Cross-service reads
 | `EDITOR` | `VIEW`, `EDIT`, `DELETE`, `VIEW_MEMBERS` |
 | `VIEWER` | `VIEW`, `VIEW_MEMBERS` |
 
+<img width="712" height="1046" alt="workspace_db" src="https://github.com/user-attachments/assets/e3c3dcb9-bb52-4a29-a59f-7230619bc594" />
+
 ### Intelligence Service Data
 
 | Entity | Table | Important fields |
@@ -792,6 +796,8 @@ No service should directly query another service's database. Cross-service reads
 `ChatEventStatus` values are `PENDING`, `FAILED`, and `CONFIRMED`.
 
 `UsageLog` has a unique constraint on `user_id` and `date`, giving one token counter per user per day.
+
+<img width="1104" height="836" alt="intelligence_db" src="https://github.com/user-attachments/assets/65ecc062-e725-410d-84ba-921b6bb1f30e" />
 
 ## AI Code Generation Pipeline
 
