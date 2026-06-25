@@ -169,6 +169,8 @@ Code generation is the core intelligence of DesignForge. It is the process by wh
 
 <img width="1484" height="950" alt="Code Generation Architecture" src="https://github.com/user-attachments/assets/5981e42c-dc91-4852-9b6c-0ddf344d9265" />
 
+This diagram just focuses on explaining the code generation flow, for simplicity purposes it does not correctly show the routing between frontend, backend, reverse proxy (refer the system architecture diagram, flowchart in this section for viewing exact connections/flow)
+
 ```mermaid
 sequenceDiagram
   participant Browser as Browser
@@ -324,6 +326,8 @@ This design gives both services complete local autonomy. Neither service needs t
 Code execution is the infrastructure layer that transforms source files in MinIO into a live, interactive web application accessible in the user's browser. It involves pod lifecycle management, cross-namespace Kubernetes API access, a two-container sidecar architecture, a custom reverse proxy, and a real-time file synchronization mechanism that feeds Vite's HMR system.
 
 <img width="2739" height="1679" alt="Code Execution Architecture" src="https://github.com/user-attachments/assets/24d1a12d-b304-4391-8198-20cb30dd4fff" />
+
+This diagram just focuses on explaining the code execution flow, for simplicity purposes it does not correctly show the routing between frontend, backend, reverse proxy (refer the system architecture diagram, flowchart in this section for viewing exact connections/flow)
 
 ### The Runner Pool
 
