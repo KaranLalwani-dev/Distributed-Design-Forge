@@ -115,7 +115,6 @@ Code generation is the core intelligence of DesignForge. It is the process by wh
 
 <img width="1484" height="950" alt="Code Generation Architecture" src="https://github.com/user-attachments/assets/5981e42c-dc91-4852-9b6c-0ddf344d9265" />
 
-
 ```mermaid
 sequenceDiagram
   participant Browser as Browser
