@@ -27,7 +27,7 @@ This document covers system design, component responsibilities, data flows, Kube
 2. [How Traffic Enters the System](#how-traffic-enters-the-system)
 3. [The API Layer](#the-api-layer)
 4. [Configuration and Service Discovery](#configuration-and-service-discovery)
-5. [The Microservice Boundary](#the-microservice-boundary)
+5. [Database Ownership And Schemas](#database-ownership-and-schemas)
 6. [Code Generation — Deep Dive](#code-generation--deep-dive)
 7. [The Distributed Transaction Problem](#the-distributed-transaction-problem)
 8. [Code Execution — Deep Dive](#code-execution--deep-dive)
@@ -95,11 +95,65 @@ Secrets — database passwords, the JWT signing key, the AI API key, MinIO crede
 
 ---
 
-## The Microservice Boundary
+## Database Ownership And Schemas
 
 DesignForge applies database-per-service ownership strictly. Three services own three databases on a single PostgreSQL StatefulSet instance.
 
-`account-service` owns `account_db`, which holds the `users`, `plan`, `subscription`, and `usage_logs` tables. `workspace-service` owns `workspace_db`, which holds `projects`, `project_members`, `project_files`, and `processed_events`. `intelligence-service` owns `intelligence_db`, which holds `chat_sessions`, `chat_messages`, and `chat_events`.
+| Service | Database | User | Owned domain |
+| --- | --- | --- | --- |
+| `account-service` | `account_db` | `account_user` | Users, plans, subscriptions, Stripe billing state. |
+| `workspace-service` | `workspace_db` | `workspace_user` | Projects, project members, file metadata, processed event ids. |
+| `intelligence-service` | `intelligence_db` | `intelligence_user` | Chat sessions, chat messages, chat events, token usage logs. |
+
+No service should directly query another service's database. Cross-service reads go through Feign clients.
+
+### Account Service Data
+
+| Entity | Table | Important fields |
+| --- | --- | --- |
+| `User` | `users` | `id`, `username`, `password`, `name`, `stripeCustomerId`, `createdAt`, `updatedAt`, `deletedAt` |
+| `Plan` | `plan` | `id`, `name`, `stripePriceId`, `maxProjects`, `maxTokensPerDay`, `maxPreviews`, `unlimitedAi`, `active` |
+| `Subscription` | `subscription` | `id`, `user`, `plan`, `status`, `stripeSubscriptionId`, `currentPeriodStart`, `currentPeriodEnd`, `cancelAtPeriodEnd`, `createdAt`, `updatedAt` |
+
+<img width="892" height="956" alt="account_db" src="https://github.com/user-attachments/assets/0d478e36-0e6b-4477-9beb-19b0b3b53af7" />
+
+### Workspace Service Data
+
+| Entity | Table | Important fields |
+| --- | --- | --- |
+| `Project` | `projects` | `id`, `name`, `isPublic`, `createdAt`, `updatedAt`, `deletedAt` |
+| `ProjectMember` | `project_members` | `id.projectId`, `id.userId`, `project`, `projectRole`, `invitedAt`, `acceptedAt` |
+| `ProjectFile` | `project_files` | `id`, `project`, `path`, `minioObjectKey`, `createdAt`, `updatedAt` |
+| `ProcessedEvent` | `processed_events` | `sagaId`, `processedAt` |
+
+`Project` declares indexes `idx_projects_updated_at_desc`, `idx_projects_deleted_at_updated_at_desc`, and `idx_project_deleted_at`.
+
+`ProjectRole` maps to:
+
+| Role | Permissions |
+| --- | --- |
+| `OWNER` | `VIEW`, `EDIT`, `DELETE`, `MANAGE_MEMBERS`, `VIEW_MEMBERS` |
+| `EDITOR` | `VIEW`, `EDIT`, `DELETE`, `VIEW_MEMBERS` |
+| `VIEWER` | `VIEW`, `VIEW_MEMBERS` |
+
+<img width="712" height="1046" alt="workspace_db" src="https://github.com/user-attachments/assets/e3c3dcb9-bb52-4a29-a59f-7230619bc594" />
+
+### Intelligence Service Data
+
+| Entity | Table | Important fields |
+| --- | --- | --- |
+| `ChatSession` | `chat_sessions` | composite id `projectId` + `userId`, `createdAt`, `updatedAt`, `deletedAt` |
+| `ChatMessage` | `chat_messages` | `id`, `chatSession`, `role`, `events`, `content`, `tokensUsed`, `createdAt` |
+| `ChatEvent` | `chat_events` | `id`, `chatMessage`, `type`, `sequenceOrder`, `content`, `filePath`, `metadata`, `sagaId`, `status` |
+| `UsageLog` | `usage_logs` | `id`, `userId`, `date`, `tokensUsed` |
+
+`ChatEventType` values are `THOUGHT`, `MESSAGE`, `FILE_EDIT`, and `TOOL_LOG`.
+
+`ChatEventStatus` values are `PENDING`, `FAILED`, and `CONFIRMED`.
+
+`UsageLog` has a unique constraint on `user_id` and `date`, giving one token counter per user per day.
+
+<img width="1104" height="836" alt="intelligence_db" src="https://github.com/user-attachments/assets/65ecc062-e725-410d-84ba-921b6bb1f30e" />
 
 Each service has a dedicated PostgreSQL user with privileges only on its own database. No service can directly query another service's database. When `intelligence-service` needs to check a user's subscription limit, it calls `account-service` through an internal Feign client. When it needs a project's file tree, it calls `workspace-service`. The cross-service API boundary is explicit, typed, and version-controllable — not an implicit database join.
 
@@ -559,16 +613,15 @@ Preview server starting...
 5. [RBAC And Kubernetes API Access](#rbac-and-kubernetes-api-access)
 6. [Ingress And TLS](#ingress-and-tls)
 7. [Stateful Infrastructure](#stateful-infrastructure)
-8. [Database Ownership And Schemas](#database-ownership-and-schemas)
-9. [AI Code Generation Pipeline](#ai-code-generation-pipeline)
-10. [Kafka Saga And Event Choreography](#kafka-saga-and-event-choreography)
-11. [Preview Execution Architecture](#preview-execution-architecture)
-12. [File Synchronization And HMR](#file-synchronization-and-hmr)
-13. [Dynamic Preview Proxy](#dynamic-preview-proxy)
-14. [Network Policies And Isolation](#network-policies-and-isolation)
-15. [Real-Time Collaboration Model](#real-time-collaboration-model)
-16. [Architectural Decisions](#architectural-decisions)
-17. [Source Map](#source-map)
+8. [AI Code Generation Pipeline](#ai-code-generation-pipeline)
+9. [Kafka Saga And Event Choreography](#kafka-saga-and-event-choreography)
+10. [Preview Execution Architecture](#preview-execution-architecture)
+11. [File Synchronization And HMR](#file-synchronization-and-hmr)
+12. [Dynamic Preview Proxy](#dynamic-preview-proxy)
+13. [Network Policies And Isolation](#network-policies-and-isolation)
+14. [Real-Time Collaboration Model](#real-time-collaboration-model)
+15. [Architectural Decisions](#architectural-decisions)
+16. [Source Map](#source-map)
 
 
 ## System Overview
@@ -1242,66 +1295,6 @@ MinIO stores actual file contents. PostgreSQL stores project and file metadata o
 | Mount path | `/data` |
 
 Redis stores preview routing entries written by `workspace-service` and read by `design-forge-proxy`.
-
-## Database Ownership And Schemas
-
-DesignForge uses database-per-service ownership on one PostgreSQL StatefulSet. Each service has its own logical database and dedicated user.
-
-| Service | Database | User | Owned domain |
-| --- | --- | --- | --- |
-| `account-service` | `account_db` | `account_user` | Users, plans, subscriptions, Stripe billing state. |
-| `workspace-service` | `workspace_db` | `workspace_user` | Projects, project members, file metadata, processed event ids. |
-| `intelligence-service` | `intelligence_db` | `intelligence_user` | Chat sessions, chat messages, chat events, token usage logs. |
-
-No service should directly query another service's database. Cross-service reads go through Feign clients.
-
-### Account Service Data
-
-| Entity | Table | Important fields |
-| --- | --- | --- |
-| `User` | `users` | `id`, `username`, `password`, `name`, `stripeCustomerId`, `createdAt`, `updatedAt`, `deletedAt` |
-| `Plan` | `plan` | `id`, `name`, `stripePriceId`, `maxProjects`, `maxTokensPerDay`, `maxPreviews`, `unlimitedAi`, `active` |
-| `Subscription` | `subscription` | `id`, `user`, `plan`, `status`, `stripeSubscriptionId`, `currentPeriodStart`, `currentPeriodEnd`, `cancelAtPeriodEnd`, `createdAt`, `updatedAt` |
-
-<img width="892" height="956" alt="account_db" src="https://github.com/user-attachments/assets/0d478e36-0e6b-4477-9beb-19b0b3b53af7" />
-
-### Workspace Service Data
-
-| Entity | Table | Important fields |
-| --- | --- | --- |
-| `Project` | `projects` | `id`, `name`, `isPublic`, `createdAt`, `updatedAt`, `deletedAt` |
-| `ProjectMember` | `project_members` | `id.projectId`, `id.userId`, `project`, `projectRole`, `invitedAt`, `acceptedAt` |
-| `ProjectFile` | `project_files` | `id`, `project`, `path`, `minioObjectKey`, `createdAt`, `updatedAt` |
-| `ProcessedEvent` | `processed_events` | `sagaId`, `processedAt` |
-
-`Project` declares indexes `idx_projects_updated_at_desc`, `idx_projects_deleted_at_updated_at_desc`, and `idx_project_deleted_at`.
-
-`ProjectRole` maps to:
-
-| Role | Permissions |
-| --- | --- |
-| `OWNER` | `VIEW`, `EDIT`, `DELETE`, `MANAGE_MEMBERS`, `VIEW_MEMBERS` |
-| `EDITOR` | `VIEW`, `EDIT`, `DELETE`, `VIEW_MEMBERS` |
-| `VIEWER` | `VIEW`, `VIEW_MEMBERS` |
-
-<img width="712" height="1046" alt="workspace_db" src="https://github.com/user-attachments/assets/e3c3dcb9-bb52-4a29-a59f-7230619bc594" />
-
-### Intelligence Service Data
-
-| Entity | Table | Important fields |
-| --- | --- | --- |
-| `ChatSession` | `chat_sessions` | composite id `projectId` + `userId`, `createdAt`, `updatedAt`, `deletedAt` |
-| `ChatMessage` | `chat_messages` | `id`, `chatSession`, `role`, `events`, `content`, `tokensUsed`, `createdAt` |
-| `ChatEvent` | `chat_events` | `id`, `chatMessage`, `type`, `sequenceOrder`, `content`, `filePath`, `metadata`, `sagaId`, `status` |
-| `UsageLog` | `usage_logs` | `id`, `userId`, `date`, `tokensUsed` |
-
-`ChatEventType` values are `THOUGHT`, `MESSAGE`, `FILE_EDIT`, and `TOOL_LOG`.
-
-`ChatEventStatus` values are `PENDING`, `FAILED`, and `CONFIRMED`.
-
-`UsageLog` has a unique constraint on `user_id` and `date`, giving one token counter per user per day.
-
-<img width="1104" height="836" alt="intelligence_db" src="https://github.com/user-attachments/assets/65ecc062-e725-410d-84ba-921b6bb1f30e" />
 
 ## AI Code Generation Pipeline
 
