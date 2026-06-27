@@ -51,6 +51,10 @@ DesignForge is deployed across two Kubernetes namespaces that represent two fund
 
 This separation is the foundational security decision of the entire architecture. Everything else — the network policies, the RBAC model, the proxy design, the syncer sidecar — is a direct consequence of it.
 
+<img width="1710" height="1107" alt="image" src="https://github.com/user-attachments/assets/4fb31e1b-d364-45ce-82cf-d34c2d81a6f6" />
+
+<img width="1710" height="1107" alt="image" src="https://github.com/user-attachments/assets/9e52de30-8c54-46e6-ba3c-1c91a49948f4" />
+
 ---
 
 ## How Traffic Enters the System
