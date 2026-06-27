@@ -55,6 +55,8 @@ This separation is the foundational security decision of the entire architecture
 
 <img width="1710" height="1107" alt="image" src="https://github.com/user-attachments/assets/9e52de30-8c54-46e6-ba3c-1c91a49948f4" />
 
+<img width="1710" height="1107" alt="image" src="https://github.com/user-attachments/assets/6a1f9270-bcbf-493a-8964-8eddf09f55fd" />
+
 ---
 
 ## How Traffic Enters the System
