@@ -13,7 +13,7 @@ Config-Server Repository: https://github.com/KaranLalwani-dev/designforge-config
 
 # DesignForge — Architecture Deep Dive
 
-DesignForge is an AI-powered frontend code generation and live execution platform. Users describe UI changes in natural language. The platform generates syntactically correct React and Vite project code through an LLM-assisted pipeline, persists that code to object storage, and reflects every change in an isolated live preview environment — all without the user touching a terminal or a file system.
+DesignForge is an AI-powered frontend code generation and live execution platform. Users describe UI changes in natural language. The platform generates React and Vite project code through an LLM-assisted pipeline, persists that code to object storage, and reflects every change in an isolated live preview environment — all without the user touching a terminal or a file system.
 
 This document covers system design, component responsibilities, data flows, Kubernetes topology, security isolation, and the reasoning behind every major architectural decision. It is written for engineers who want to understand how the system works at the level of implementation, not just what it does at the level of features.
 
@@ -45,11 +45,11 @@ This document covers system design, component responsibilities, data flows, Kube
 
 DesignForge is deployed across two Kubernetes namespaces that represent two fundamentally different trust levels and operational concerns.
 
-`design-forge-core` is the platform control plane. It is trusted infrastructure. It hosts user identity and authentication, subscription management, project metadata, the AI generation pipeline, file persistence orchestration, the API gateway, the preview routing proxy, the static frontend, and all stateful infrastructure — PostgreSQL, Kafka, Redis, and MinIO. Nothing runs here that wasn't authored and audited by the platform team.
+`design-forge-core` is the platform control plane. It is trusted infrastructure. It hosts user identity and authentication, subscription management, project metadata, the AI generation pipeline, file persistence orchestration, the API gateway, the preview routing proxy, the static frontend, and all stateful infrastructure — PostgreSQL, Kafka, Redis, and MinIO. Nothing runs here that wasn't authored and audited by me.
 
 `design-forge-previews` is the user-code execution plane. It is intentionally untrusted. It runs generated React code and the npm dependency trees those projects pull from the public internet. The code executing in this namespace was authored by an LLM based on arbitrary user input. The dependencies it installs were authored by unknown third parties. This namespace is treated as a hostile environment and is isolated accordingly. Generated code never executes in the same namespace as account data, billing state, secret credentials, or core infrastructure.
 
-This separation is the foundational security decision of the entire architecture. Everything else — the network policies, the RBAC model, the proxy design, the syncer sidecar — is a direct consequence of it.
+This separation is the foundational security decision of the entire architecture. Below are some screen shots from the kubernetes control pane, to give an overview of the namespaces, app-secrets, config-maps
 
 <img width="1710" height="1107" alt="image" src="https://github.com/user-attachments/assets/4fb31e1b-d364-45ce-82cf-d34c2d81a6f6" />
 
@@ -180,7 +180,7 @@ The `common-lib` module provides shared type definitions — Kafka event records
 
 ## Code Generation — Deep Dive
 
-Code generation is the core intelligence of DesignForge. It is the process by which a natural language prompt becomes a set of concrete file modifications that are persisted to MinIO and eventually reflected in the live preview. The full pipeline spans the browser, NGINX, the API gateway, `intelligence-service`, `workspace-service`, MinIO, Kafka, and PostgreSQL — and it does all of this while streaming a response to the user in real time.
+Code generation is the core feature of DesignForge. It is the process by which a natural language prompt becomes a set of concrete file modifications that are persisted to MinIO and eventually reflected in the live preview. The full pipeline spans the browser, NGINX, the API gateway, `intelligence-service`, `workspace-service`, MinIO, Kafka, and PostgreSQL — and it does all of this while streaming a response to the user in real time.
 
 <img width="1484" height="950" alt="Code Generation Architecture" src="https://github.com/user-attachments/assets/5981e42c-dc91-4852-9b6c-0ddf344d9265" />
 
