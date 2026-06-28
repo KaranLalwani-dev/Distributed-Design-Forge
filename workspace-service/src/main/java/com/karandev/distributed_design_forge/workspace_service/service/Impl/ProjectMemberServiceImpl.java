@@ -41,7 +41,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     public List<MemberResponse> getProjectMembers(Long projectId) {
         return projectMemberRepository.findByIdProjectId(projectId)
                 .stream()
-                .map(projectMemberMapper::toProjectMemberResponseFromMember)
+                .map(this::enrichMemberResponse)
                 .toList();
     }
 
@@ -74,7 +74,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
         projectMemberRepository.save(member);
 
-        return projectMemberMapper.toProjectMemberResponseFromMember(member);
+        return enrichMemberResponse(member);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
         projectMemberRepository.save(projectMember);
 
-        return projectMemberMapper.toProjectMemberResponseFromMember(projectMember);
+        return enrichMemberResponse(projectMember);
     }
 
     @Override
@@ -107,9 +107,29 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
         projectMemberRepository.deleteById(projectMemberId);
     }
 
-    ///  INTERNAL FUNCTIONS
-
     public Project getAccessibleProjectById(Long projectId, Long userId) {
         return projectRepository.findAccessibleProjectById(projectId, userId).orElseThrow();
+    }
+
+    private MemberResponse enrichMemberResponse(ProjectMember member) {
+        // Map the base fields that exist in the ProjectMember entity
+        MemberResponse response = projectMemberMapper.toProjectMemberResponseFromMember(member);
+
+        try {
+            // Fetch the username and name from account-service
+            UserDto user = accountClient.getUserById(member.getId().getUserId());
+
+            // Construct a new record combining both
+            return new MemberResponse(
+                    response.userId(),
+                    user.username(), // Injected
+                    user.name(),     // Injected
+                    response.projectRole(),
+                    response.invitedAt()
+            );
+        } catch (Exception e) {
+            // Return base response if account-service call fails
+            return response;
+        }
     }
 }
