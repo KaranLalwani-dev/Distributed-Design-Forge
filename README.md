@@ -584,6 +584,36 @@ Changing any of these requires coordinated changes across multiple services.
 
 ## Failure Modes
 
+### Stale Redis Entry Handling for Preview Pods
+
+In the current architecture, stale Redis entries (routing information) are primarily handled through a **Time-To-Live (TTL)** mechanism rather than active deletion upon pod crashes or deletions.
+
+#### 1. Registration and TTL
+When a preview pod is claimed and started by the `KubernetesDeploymentServiceImpl` (in the `workspace-service`), it registers the routing information in Redis:
+*   **Key format:** `route:project-{projectId}.previews.designforge.website`
+*   **Value:** `{podIP}:5173`
+*   **TTL:** **6 Hours**
+
+This entry is created using `redisTemplate.opsForValue().set(..., 6, TimeUnit.HOURS)`, meaning Redis will automatically purge the entry after 6 hours if not refreshed.
+
+#### 2. Handling Pod Crashes or Deletions
+If a preview pod crashes or is deleted by Kubernetes:
+*   **Stale Entry Persistence:** The Redis entry remains in the database until its 6-hour TTL expires. There is no background controller or pod-lifecycle hook currently implemented to explicitly delete the Redis key when a pod terminates.
+*   **Proxy Behavior:** The `design-forge-proxy` (Node.js) continues to retrieve this stale IP from Redis when a request arrives for that hostname.
+*   **Connection Failure:** Since the pod (and its IP) no longer exists, the proxy will fail to connect to the target.
+*   **User Feedback:** The proxy catches this error (in `k8s/proxy/index.js`) and returns a **502 Bad Gateway** response with the message `"Preview server starting..."`.
+
+#### 3. Recovery Flow
+When a user attempts to access the preview again and encounters the error, the system typically relies on the `deploy` flow being re-triggered:
+*   The `deploy` method in `KubernetesDeploymentServiceImpl` first checks for an active pod with the label `project-id={id}` and `status=busy` in the Running phase.
+*   If the pod was deleted or crashed, `findActivePod` will return `null`.
+*   The service then claims a new **idle** pod from the pool, starts the environment, and **overwrites** the stale Redis entry with the new Pod IP (refreshing the 6-hour TTL).
+
+#### Summary
+*   **Crashes/Deletions:** The entry stays in Redis until the **6-hour TTL** expires.
+*   **Stale Access:** The proxy will return a **502 ("Preview server starting...")** if it tries to route to a non-existent pod.
+*   **Cleanup:** Handled automatically by Redis expiration (TTL) or by being overwritten during a new deployment.
+
 ### Config Service Slow Or Unavailable
 
 Downstream services retry Config Server with `SPRING_CLOUD_CONFIG_RETRY_MAX_ATTEMPTS=10` and `SPRING_CLOUD_CONFIG_RETRY_INITIAL_INTERVAL=3000`. If Config Server becomes healthy within the retry window, services can start. If not, services cannot obtain their k8s configuration.
