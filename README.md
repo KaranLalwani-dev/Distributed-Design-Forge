@@ -3,7 +3,7 @@
 DesignForge is an AI-powered frontend code generation and live execution platform. Users describe UI and frontend feature changes in natural language, the Intelligence Service generates React/Vite project code through an LLM-assisted workflow, and the resulting files are reflected in an isolated live preview environment.
 
 This README focuses on system design, component boundaries, Kubernetes topology, runtime contracts, data ownership, event flows, security isolation, and architectural tradeoffs. It does not provide installation steps, deployment instructions, or a getting-started guide.
-The README is divided into two parts the first one provides a deep dive into the system architecture and the second part provides summarized architecture details along with exact software configuration details check out that part too if interested!
+The README is divided into two parts the first one provides a deep dive into the system architecture and the second part provides summarized architecture along with exact software configuration details check out that part too if interested!
 
 I first built the monolithic version of this application you can check it out here: https://github.com/KaranLalwani-dev/Design-Forge-Monolithic-version
 
