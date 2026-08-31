@@ -11,6 +11,8 @@ Frontend Repository: https://github.com/KaranLalwani-dev/destributed_design_forg
 
 Config-Server Repository: https://github.com/KaranLalwani-dev/designforge-config-server
 
+Youtube demo: https://www.youtube.com/watch?v=KbyMl6bTaaI
+
 This project took several months, starting with a monolithic version to work through the core logic, then rebuilding it distributed once I actually understood what needed to be decoupled and why. Slower, but that was the point.
 Reading taught me what distributed systems are. Building one taught me why they work and where they fail.
 
