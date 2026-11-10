@@ -17,6 +17,7 @@ This project took several months, starting with a monolithic version to work thr
 Reading taught me what distributed systems are. Building one taught me why they work and where they fail.
 
 Deployment is no longer live (ran out of gke credits).
+I created this project when I was starting out with software development, so its purpose was not to solve any real world problem. Despite that I picked this idea because it covered most of the core software engineering concepts like authorisation, llm integration, breaking down application into micro services, distributed transaction and so on as you will discover further in part 1 of the read me.
 
 # DesignForge — Architecture Deep Dive
 
